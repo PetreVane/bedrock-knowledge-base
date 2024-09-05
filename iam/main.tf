@@ -8,7 +8,10 @@ data "aws_iam_policy_document" "bedrock_kb_policy" {
   statement {
 	actions = [
 	  "s3:GetObject",
-	  "s3:ListBucket"
+	  "s3:ListBucket",
+	  "s3:DeleteObject",
+	  "s3:DeleteBucket",
+	  "s3:DeleteBucketPolicy"
 	]
 	effect   = "Allow"
 	resources = [
@@ -19,14 +22,29 @@ data "aws_iam_policy_document" "bedrock_kb_policy" {
   
   statement {
 	actions = [
-	  "secretsmanager:GetSecretValue"
+	  "secretsmanager:GetSecretValue",
+	  "secretsmanager:DeleteSecret"
 	]
 	effect   = "Allow"
 	resources = [
 	  var.pinecone_secret_arn
 	]
   }
+  
+  statement {
+	actions = [
+	  "bedrock:InvokeModel",
+	  "bedrock:DeleteModel",
+	  "bedrock:DeleteDataSource"
+	]
+	effect   = "Allow"
+	resources = [
+	  var.embedings_model_arn,
+	  "${var.knowledge_base_arn}/*"
+	]
+  }
 }
+
 
 
 resource "aws_iam_policy" "bedrock_kb_policy" {
