@@ -5,6 +5,7 @@ resource "random_id" "generate" {
 
 resource "aws_s3_bucket" "knowledge_base_bucket" {
   bucket = "tf-bedrock-knowledge-base-${random_id.generate.hex}"
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_public_access_block" "bucket_access" {
