@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "bedrock_kb_policy" {
 	actions = [
 	  "bedrock:InvokeModel", # Permission to invoke Bedrock models
 	  "bedrock:DeleteModel", # Permission to delete Bedrock models
-	  "bedrock:DeleteDataSource"           # Permission to delete data sources
+	  "bedrock:DeleteDataSource"# Permission to delete data sources
 	]
 	effect   = "Allow"                    # Allow these actions
     resources = [
@@ -55,11 +55,6 @@ resource "aws_iam_policy" "bedrock_kb_policy" {
   policy      = data.aws_iam_policy_document.bedrock_kb_policy.json     # JSON representation of the policy
 }
 
-# Create the IAM role for the Bedrock Knowledge Base
-resource "aws_iam_role" "bedrock_kb_role" {
-  name               = "BedrockKnowledgeBaseRole-${var.region}-${random_id.generator.hex}"  # Unique role name
-  assume_role_policy = data.aws_iam_policy_document.bedrock_kb_trust_policy.json           # Trust policy for the role
-}
 
 # Create a trust policy document for the Bedrock Knowledge Base role
 data "aws_iam_policy_document" "bedrock_kb_trust_policy" {
@@ -69,11 +64,23 @@ data "aws_iam_policy_document" "bedrock_kb_trust_policy" {
       type        = "Service"      # Specify the principal type as a service
       identifiers = ["bedrock.amazonaws.com"]  # Identifier for the Bedrock service
     }
+	effect = "Allow"
   }
+}
+
+# Create the IAM role for the Bedrock Knowledge Base
+resource "aws_iam_role" "bedrock_kb_role" {
+  name               = "BedrockKnowledgeBaseRole-${var.region}-${random_id.generator.hex}"  # Unique role name
+  assume_role_policy = data.aws_iam_policy_document.bedrock_kb_trust_policy.json           # Trust policy for the role
 }
 
 # Attach the previously created policy to the IAM role
 resource "aws_iam_role_policy_attachment" "bedrock_kb_policy_attachment" {
   role       = aws_iam_role.bedrock_kb_role.name  # Role to which the policy is attached
   policy_arn = aws_iam_policy.bedrock_kb_policy.arn  # ARN of the policy being attached
+}
+
+resource "time_sleep" "wait_30_seconds" {
+  depends_on = [aws_iam_role.bedrock_kb_role]
+  create_duration = "30s"
 }
