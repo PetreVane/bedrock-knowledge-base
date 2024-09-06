@@ -1,3 +1,4 @@
+
 # Fetch the current AWS partition information
 data "aws_partition" "current" {}
 
@@ -11,6 +12,8 @@ resource "random_id" "generator" {
 
 # Create an AWS Bedrock agent knowledge base using Pinecone for storage
 resource "aws_bedrockagent_knowledge_base" "knowledge_base_with_pinecone" {
+  
+  depends_on = [var.knowledge_base_role_arn]
   # Set the name of the knowledge base, appending a random hex ID for uniqueness
   name = "${var.knowledge_base_name}-${random_id.generator.hex}"
   

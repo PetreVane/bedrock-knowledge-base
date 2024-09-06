@@ -53,5 +53,9 @@ variable "source_bucket_arn" {
   type = string
 }
 
+# variable "iam_policy_attachment_id" {
+#   description = "The ID of iam policy attachment"
+#   type = string
+# }
 
 
