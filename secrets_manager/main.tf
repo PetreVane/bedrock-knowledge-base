@@ -11,6 +11,8 @@ locals {
   }
 }
 
+data "aws_caller_identity" "current" {}
+
 # Create a new secret in AWS Secrets Manager for the Pinecone API key
 resource "aws_secretsmanager_secret" "pinecone_api_key" {
   # Set the name of the secret, appending a random hex ID for uniqueness
@@ -23,4 +25,22 @@ resource "aws_secretsmanager_secret_version" "pinecone_api_key" {
   secret_id = aws_secretsmanager_secret.pinecone_api_key.id
   # Encode the local Pinecone API key map as a JSON string and store it as the secret value
   secret_string = jsonencode(local.pinecone_api_key)
+}
+
+resource "aws_secretsmanager_secret_policy" "pinecone_api_key_policy" {
+  secret_arn = aws_secretsmanager_secret.pinecone_api_key.arn
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.kb_name}"
+        }
+        Action   = ["secretsmanager:GetSecretValue"]
+        Resource = aws_secretsmanager_secret.pinecone_api_key.arn
+      }
+    ]
+  })
 }
