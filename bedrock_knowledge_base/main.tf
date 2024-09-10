@@ -10,10 +10,16 @@ resource "random_id" "generator" {
   byte_length = 4
 }
 
+resource "null_resource" "wait_for_iam_policy" {
+  triggers = {
+    policy_attachment_id = var.iam_policy_attachment_id
+  }
+}
+
 # Create an AWS Bedrock agent knowledge base using Pinecone for storage
 resource "aws_bedrockagent_knowledge_base" "knowledge_base_with_pinecone" {
+  depends_on = [null_resource.wait_for_iam_policy]
   
-  depends_on = [var.knowledge_base_role_arn]
   # Set the name of the knowledge base, appending a random hex ID for uniqueness
   name = "${var.knowledge_base_name}-${random_id.generator.hex}"
   
