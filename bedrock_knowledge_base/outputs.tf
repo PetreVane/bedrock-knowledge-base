@@ -10,7 +10,11 @@ output "knowledge_base_arn" {
   value = aws_bedrockagent_knowledge_base.knowledge_base_with_pinecone.arn
 }
 
-output "knowledge_base_name" {
+output "knowledge_base_id" {
   # Retrieve and output the ARN of the created knowledge base resource
-  value = aws_bedrockagent_knowledge_base.knowledge_base_with_pinecone.name
+  value = aws_bedrockagent_knowledge_base.knowledge_base_with_pinecone.id
+}
+
+output "knowledge_base_data_source_id" {
+  value = aws_bedrockagent_data_source.kb_data_source.id
 }
