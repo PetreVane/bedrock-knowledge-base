@@ -7,10 +7,14 @@ terraform {
   }
 }
 
+resource "random_id" "generator" {
+  byte_length = 2
+}
+
 # Create a Pinecone index resource for the knowledge base
 resource "pinecone_index" "knowledge_base" {
   dimension = 1024                          # Set the dimensionality of the index to 1024
-  name      = "tf-bedrock-knowledge-base"   # Name of the Pinecone index
+  name      = "tf-bedrock-knowledge-${random_id.generator.hex}"   # Name of the Pinecone index
   metric    = "cosine"                      # Specify the similarity metric to use (cosine similarity)
   
   # Define the specifications for the index
