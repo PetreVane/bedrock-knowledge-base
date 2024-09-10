@@ -3,6 +3,8 @@ resource "random_id" "generator" {
   byte_length = 4
 }
 
+data "aws_caller_identity" "current" {}
+
 # Create an IAM policy document for the Bedrock Knowledge Base
 data "aws_iam_policy_document" "bedrock_kb_policy" {
   # First statement allows S3 actions on the specified bucket and its objects
@@ -43,7 +45,7 @@ data "aws_iam_policy_document" "bedrock_kb_policy" {
 	effect   = "Allow"                    # Allow these actions
     resources = [
       var.embedings_model_arn,            # ARN of the embedding model
-      "${var.knowledge_base_arn}/*"        # ARN of all resources in the knowledge base
+	  "arn:aws:bedrock:${var.region}:${data.aws_caller_identity.current.account_id}:knowledge-base/*"       # ARN of all resources in the knowledge base
     ]
   }
 }
@@ -80,7 +82,66 @@ resource "aws_iam_role_policy_attachment" "bedrock_kb_policy_attachment" {
   policy_arn = aws_iam_policy.bedrock_kb_policy.arn  # ARN of the policy being attached
 }
 
-resource "time_sleep" "wait_30_seconds" {
+resource "time_sleep" "wait_60_seconds" {
   depends_on = [aws_iam_role.bedrock_kb_role]
-  create_duration = "30s"
+  create_duration = "60s"
+}
+
+
+// iam role for lambda function
+resource "aws_iam_role" "tf_lambda_executor_role" {
+	name = "tf_lambda_executor_role-${random_id.generator.hex}"
+	assume_role_policy = jsonencode({
+		Version = "2012-10-17"
+		Statement = [{
+			Action = "sts:AssumeRole",
+			Effect = "Allow",
+			Principal = {
+				Service = "lambda.amazonaws.com"
+			}
+		}]
+	})
+}
+
+resource "aws_iam_policy" "tf_s3_read_access_and_logging" {
+	name        = "S3ReadAndLoggingPolicy-${random_id.generator.hex}"
+	description = "Policy which grants read access to a specific S3 bucket and CloudWatch Logs permissions"
+
+	policy = jsonencode({
+		Version = "2012-10-17"
+		Statement = [
+			{
+				Action = [
+					"s3:List*",
+					"s3:ListBucket",
+					"s3:GetObject"
+				],
+				Resource = "${var.knowledge_base_arn}/*",
+				Effect   = "Allow"
+			},
+			{
+				Action = [
+					"logs:CreateLogGroup",
+					"logs:CreateLogStream",
+					"logs:PutLogEvents"
+				],
+				Resource = "arn:aws:logs:*:*:*",
+				Effect   = "Allow"
+			},
+			{
+				Action = [
+					"bedrock:StartIngestionJob",
+					"bedrock:AssociateThirdPartyKnowledgeBase"
+					],
+				Effect = "Allow",
+				Resource = "*"
+			}
+		]
+	})
+}
+
+
+resource "aws_iam_role_policy_attachment" "tf_s3_policy_attach" {
+	policy_arn = aws_iam_policy.tf_s3_read_access_and_logging.arn
+	role       = aws_iam_role.tf_lambda_executor_role.name
 }
