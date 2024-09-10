@@ -3,6 +3,11 @@ resource "random_id" "generate" {
   byte_length = 8
 }
 
+locals {
+  lambda_zip_file_path = var.lambda_zip_file_path
+  lambda_zip_file_name =  var.lambda_zip_name
+}
+
 # Create an S3 bucket for the knowledge base
 resource "aws_s3_bucket" "knowledge_base_bucket" {
   # Set the name of the bucket, appending a random hex ID for uniqueness
@@ -28,4 +33,28 @@ resource "aws_s3_bucket_public_access_block" "bucket_access" {
   
   # Restrict the bucket from being publicly accessible
   restrict_public_buckets = true
+}
+
+
+resource "aws_s3_object" "lambda_object" {
+  bucket = aws_s3_bucket.knowledge_base_bucket.id
+  key    = "/lambda_files/${local.lambda_zip_file_name}"
+  source = local.lambda_zip_file_path
+}
+
+resource "aws_s3_object" "knowledge_files_folder" {
+  bucket = aws_s3_bucket.knowledge_base_bucket.id
+  key    = "knowledge_base_files/"
+  content_type = "application/x-directory"
+}
+
+resource "aws_s3_bucket_notification" "s3_bucket_notification" {
+  bucket = aws_s3_bucket.knowledge_base_bucket.id
+
+  lambda_function {
+    events = ["s3:ObjectCreated:*"]
+    lambda_function_arn = var.lambda_arn
+    filter_prefix = "knowledge_base_files/"
+    filter_suffix = "*"
+  }
 }
