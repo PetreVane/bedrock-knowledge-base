@@ -86,6 +86,7 @@ resource "aws_bedrockagent_data_source" "kb_data_source" {
     s3_configuration {
       # Specify the ARN of the S3 bucket where data is stored
       bucket_arn          = var.source_bucket_arn
+      inclusion_prefixes = [var.source_bucket_prefix]
     }
   }
 }

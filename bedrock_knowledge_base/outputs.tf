@@ -1,6 +1,6 @@
 # Define an output variable for the ARN of the embedding model
-output "embedings_model_arn" {
-  # Construct the ARN using the current AWS partition and region, along with the specified embedding model variable
+output "embeddings_model_arn" {
+  # Constructs the ARN using the current AWS partition and region, along with the specified embedding model variable
   value = "arn:${data.aws_partition.current.partition}:bedrock:${data.aws_region.current.name}::foundation-model/${var.embedings_model}"
 }
 
@@ -16,5 +16,5 @@ output "knowledge_base_id" {
 }
 
 output "knowledge_base_data_source_id" {
-  value = aws_bedrockagent_data_source.kb_data_source.id
+  value = aws_bedrockagent_data_source.kb_data_source.data_source_id
 }

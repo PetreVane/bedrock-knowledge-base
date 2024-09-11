@@ -53,6 +53,11 @@ variable "source_bucket_arn" {
   type = string
 }
 
+variable "source_bucket_prefix" {
+  description = "The s3 prefix where files are stored"
+  type = string
+}
+
 variable "iam_policy_attachment_id" {
   description = "The ID of iam policy attachment"
   type = string
