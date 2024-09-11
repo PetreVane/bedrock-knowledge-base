@@ -10,61 +10,68 @@ data "aws_iam_policy_document" "bedrock_kb_policy" {
   # First statement allows S3 actions on the specified bucket and its objects
   statement {
 	actions = [
-	  "s3:GetObject", # Permission to retrieve objects from S3
-	  "s3:ListBucket", # Permission to list objects in the S3 bucket
-	  "s3:DeleteObject", # Permission to delete objects from S3
-	  "s3:DeleteBucket", # Permission to delete the S3 bucket
-	  "s3:DeleteBucketPolicy"  # Permission to delete the bucket policy
+	  "s3:GetObject",
+	  "s3:ListBucket",
+	  "s3:DeleteObject",
+	  "s3:DeleteBucket",
+	  "s3:DeleteBucketPolicy"
 	]
-	effect = "Allow"        # Allow these actions
+	effect = "Allow"
 	resources = [
-	  var.kb_source_bucket_arn, # ARN of the S3 bucket
-	  "${var.kb_source_bucket_arn}/*"     # ARN of all objects in the bucket
+	  var.kb_source_bucket_arn,
+	  "${var.kb_source_bucket_arn}/*"
 	]
   }
   
   # Second statement allows access to Secrets Manager for specific actions
   statement {
 	actions = [
-	  "secretsmanager:GetSecretValue", # Permission to retrieve secret values
-	  "secretsmanager:DeleteSecret"      # Permission to delete secrets
+	  "secretsmanager:GetSecretValue",
+	  "secretsmanager:DeleteSecret"
 	]
-	effect = "Allow"                   # Allow these actions
+	effect = "Allow"
 	resources = [
-	  var.pinecone_secret_arn             # ARN of the Pinecone secret
+	  var.pinecone_secret_arn
 	]
   }
   
   # Third statement allows actions related to Bedrock models and data sources
   statement {
 	actions = [
-	  "bedrock:InvokeModel", # Permission to invoke Bedrock models
-	  "bedrock:DeleteModel", # Permission to delete Bedrock models
-	  "bedrock:DeleteDataSource"# Permission to delete data sources
+		"bedrock:ListFoundationModels",
+	  	"bedrock:InvokeModel",
+		"bedrock:InvokeStreamingModel",
+	  	"bedrock:DeleteModel",
+	  	"bedrock:DeleteDataSource",
+		"bedrock:StartIngestionJob",
+		"bedrock:AssociateThirdPartyKnowledgeBase"
 	]
-	effect   = "Allow"                    # Allow these actions
+	effect   = "Allow"
     resources = [
-      var.embedings_model_arn,            # ARN of the embedding model
-	  "arn:aws:bedrock:${var.region}:${data.aws_caller_identity.current.account_id}:knowledge-base/*"       # ARN of all resources in the knowledge base
+      "*" //var.embedings_model_arn,
+	  //"arn:aws:bedrock:${var.region}:${data.aws_caller_identity.current.account_id}:knowledge-base/*"       # ARN of all resources in the knowledge base
     ]
   }
 }
 
 # Create an IAM policy using the defined policy document
-resource "aws_iam_policy" "bedrock_kb_policy" {
-  name        = "BedrockKnowledgeBasePolicy-${random_id.generator.hex}"  # Unique policy name
-  description = "Policy for AWS Bedrock Knowledge Base"                  # Description of the policy
-  policy      = data.aws_iam_policy_document.bedrock_kb_policy.json     # JSON representation of the policy
+resource "aws_iam_policy" "bedrock_kb_policy_json" {
+  name        = "BedrockKnowledgeBasePolicy-${random_id.generator.hex}"
+  description = "Policy for AWS Bedrock Knowledge Base"
+  policy      = data.aws_iam_policy_document.bedrock_kb_policy.json
 }
 
 
 # Create a trust policy document for the Bedrock Knowledge Base role
 data "aws_iam_policy_document" "bedrock_kb_trust_policy" {
   statement {
-    actions = ["sts:AssumeRole"]  # Action that allows assuming the role
+    actions = ["sts:AssumeRole"]
     principals {
-      type        = "Service"      # Specify the principal type as a service
-      identifiers = ["bedrock.amazonaws.com"]  # Identifier for the Bedrock service
+      type        = "Service"
+      identifiers = [
+		  "bedrock.amazonaws.com",
+		  "lambda.amazonaws.com"
+	  ]
     }
 	effect = "Allow"
   }
@@ -72,19 +79,19 @@ data "aws_iam_policy_document" "bedrock_kb_trust_policy" {
 
 # Create the IAM role for the Bedrock Knowledge Base
 resource "aws_iam_role" "bedrock_kb_role" {
-  name               = "BedrockKnowledgeBaseRole-${var.region}-${random_id.generator.hex}"  # Unique role name
-  assume_role_policy = data.aws_iam_policy_document.bedrock_kb_trust_policy.json           # Trust policy for the role
+  name               = "BedrockKnowledgeBaseRole-${var.region}-${random_id.generator.hex}"
+  assume_role_policy = data.aws_iam_policy_document.bedrock_kb_trust_policy.json
 }
 
 # Attach the previously created policy to the IAM role
 resource "aws_iam_role_policy_attachment" "bedrock_kb_policy_attachment" {
-  role       = aws_iam_role.bedrock_kb_role.name  # Role to which the policy is attached
-  policy_arn = aws_iam_policy.bedrock_kb_policy.arn  # ARN of the policy being attached
+  role       = aws_iam_role.bedrock_kb_role.name
+  policy_arn = aws_iam_policy.bedrock_kb_policy_json.arn
 }
 
-resource "time_sleep" "wait_60_seconds" {
-  depends_on = [aws_iam_role.bedrock_kb_role]
-  create_duration = "60s"
+resource "time_sleep" "wait_30_seconds" {
+  depends_on = [aws_iam_policy.bedrock_kb_policy_json]
+  create_duration = "30s"
 }
 
 
@@ -103,9 +110,9 @@ resource "aws_iam_role" "tf_lambda_executor_role" {
 	})
 }
 
-resource "aws_iam_policy" "tf_s3_read_access_and_logging" {
+resource "aws_iam_policy" "lambda_s3_read_access_and_logging" {
 	name        = "S3ReadAndLoggingPolicy-${random_id.generator.hex}"
-	description = "Policy which grants read access to a specific S3 bucket and CloudWatch Logs permissions"
+	description = "Policy which grants a lambda function read access to a specific S3 bucket, CloudWatch Logs permissions and triggers bedrock ingestion job"
 
 	policy = jsonencode({
 		Version = "2012-10-17"
@@ -134,7 +141,7 @@ resource "aws_iam_policy" "tf_s3_read_access_and_logging" {
 					"bedrock:AssociateThirdPartyKnowledgeBase"
 					],
 				Effect = "Allow",
-				Resource = "*"
+				Resource = "arn:aws:bedrock:${var.region}:${data.aws_caller_identity.current.account_id}:knowledge-base/*"
 			}
 		]
 	})
@@ -142,6 +149,6 @@ resource "aws_iam_policy" "tf_s3_read_access_and_logging" {
 
 
 resource "aws_iam_role_policy_attachment" "tf_s3_policy_attach" {
-	policy_arn = aws_iam_policy.tf_s3_read_access_and_logging.arn
+	policy_arn = aws_iam_policy.lambda_s3_read_access_and_logging.arn
 	role       = aws_iam_role.tf_lambda_executor_role.name
 }
