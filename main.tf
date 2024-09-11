@@ -38,7 +38,7 @@ module "iam" {
   region               = var.region
   kb_source_bucket_arn = module.s3.kb_bucket_arn
   pinecone_secret_arn  = module.secrets_manager.pinecone_secret_arn
-  embedings_model_arn  = module.bedrock.embedings_model_arn
+  embedings_model_arn  = module.bedrock.embeddings_model_arn
   knowledge_base_arn   = module.bedrock.knowledge_base_arn
 }
 
@@ -55,6 +55,7 @@ module "bedrock" {
   pinecone_credential_secret_arn = module.secrets_manager.pinecone_secret_arn
   pinecone_index_name            = module.pinecone.pincone_index_name
   source_bucket_arn              = module.s3.kb_bucket_arn
+  source_bucket_prefix           = module.s3.knowledge_files_folder_key
   iam_policy_attachment_id       = module.iam.iam_policy_attachment_id
   region                         = var.region
 }

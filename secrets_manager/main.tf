@@ -36,7 +36,7 @@ resource "aws_secretsmanager_secret_policy" "pinecone_api_key_policy" {
       {
         Effect = "Allow"
         Principal = {
-          "AWS" = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.kb_name}"
+          "AWS" = "*" //"arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.kb_name}"
         }
         Action   = ["secretsmanager:GetSecretValue"]
         Resource = aws_secretsmanager_secret.pinecone_api_key.arn
