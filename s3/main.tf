@@ -48,13 +48,62 @@ resource "aws_s3_object" "knowledge_files_folder" {
   content_type = "application/x-directory"
 }
 
-resource "aws_s3_bucket_notification" "s3_bucket_notification" {
+resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = aws_s3_bucket.knowledge_base_bucket.id
 
   lambda_function {
-    events = ["s3:ObjectCreated:*"]
     lambda_function_arn = var.lambda_arn
-    filter_prefix = "knowledge_base_files/"
-    filter_suffix = ".pdf"
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "knowledge_base_files/"
+    filter_suffix       = ".pdf"
+  }
+
+  lambda_function {
+    lambda_function_arn = var.lambda_arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "knowledge_base_files/"
+    filter_suffix       = ".md"
+  }
+
+  lambda_function {
+    lambda_function_arn = var.lambda_arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "knowledge_base_files/"
+    filter_suffix       = ".txt"
+  }
+
+  lambda_function {
+    lambda_function_arn = var.lambda_arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "knowledge_base_files/"
+    filter_suffix       = ".docx"
+  }
+
+  lambda_function {
+    lambda_function_arn = var.lambda_arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "knowledge_base_files/"
+    filter_suffix       = ".html"
+  }
+
+  lambda_function {
+    lambda_function_arn = var.lambda_arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "knowledge_base_files/"
+    filter_suffix       = ".csv"
+  }
+
+  lambda_function {
+    lambda_function_arn = var.lambda_arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "knowledge_base_files/"
+    filter_suffix       = ".xls"
+  }
+
+  lambda_function {
+    lambda_function_arn = var.lambda_arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "knowledge_base_files/"
+    filter_suffix       = ".xlsx"
   }
 }
