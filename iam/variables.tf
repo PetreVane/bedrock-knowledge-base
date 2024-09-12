@@ -23,3 +23,8 @@ variable "knowledge_base_arn" {
   description = "The arn of the knowledge base"
   type = string
 }
+
+variable "sns_topic_arn" {
+  description = "The arn of the topic on which Lambda function is allowed to publish messages"
+  type = string
+}

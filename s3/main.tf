@@ -55,6 +55,6 @@ resource "aws_s3_bucket_notification" "s3_bucket_notification" {
     events = ["s3:ObjectCreated:*"]
     lambda_function_arn = var.lambda_arn
     filter_prefix = "knowledge_base_files/"
-    filter_suffix = "*"
+    filter_suffix = ".pdf"
   }
 }

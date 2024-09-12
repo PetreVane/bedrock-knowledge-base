@@ -40,6 +40,7 @@ module "iam" {
   pinecone_secret_arn  = module.secrets_manager.pinecone_secret_arn
   embedings_model_arn  = module.bedrock.embeddings_model_arn
   knowledge_base_arn   = module.bedrock.knowledge_base_arn
+  sns_topic_arn        = module.sns.sns_topic_arn
 }
 
 module "pinecone" {
@@ -61,11 +62,17 @@ module "bedrock" {
 }
 
 module "lambda" {
-  source                  = "./lambda"
-  data_source_id          = module.bedrock.knowledge_base_data_source_id
-  knowledge_base_id       = module.bedrock.knowledge_base_id
-  s3_bucket_arn           = module.s3.kb_bucket_arn
-  s3_bucket_id            = module.s3.kb_bucket_id
-  tf_lambda_executor_role = module.iam.tf_lambda_executor_role_arn
-  s3_bucket_key           = module.s3.lambda_object_key
+  source                   = "./lambda"
+  data_source_id           = module.bedrock.knowledge_base_data_source_id
+  knowledge_base_id        = module.bedrock.knowledge_base_id
+  s3_bucket_arn            = module.s3.kb_bucket_arn
+  s3_bucket_id             = module.s3.kb_bucket_id
+  tf_lambda_executor_role  = module.iam.tf_lambda_executor_role_arn
+  s3_bucket_key            = module.s3.lambda_object_key
+  lambda_results_sns_topic = module.sns.sns_topic_arn
+}
+
+module "sns" {
+  source        = "./sns"
+  email_address = var.default_email_address
 }

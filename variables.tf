@@ -2,7 +2,7 @@
 variable "region" {
   description = "AWS region"
   type        = string
-  default     = "eu-west-2"
+  default     = "us-east-1"
 }
 
 variable "pinecone_api_key" {
@@ -19,5 +19,11 @@ variable "pinecone_environment" {
 variable "inference_model_id" {
   description = "Model used for inference"
   type        = string
-  default     = "anthropic.claude-3-sonnet-20240229-v1:0"
+  default     = "anthropic.claude-3-sonnet-20240229-v1"
+}
+
+variable "default_email_address" {
+  description = "Default email address where sns messages are sent"
+  type        = string
+  default     = "petre.vane@gmail.com"
 }

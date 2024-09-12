@@ -30,3 +30,8 @@ variable "tf_lambda_executor_role" {
   type = string
   description = "The role used to execute the lambda function"
 }
+
+variable "lambda_results_sns_topic" {
+  description = "SNS topic for sending lambda executions results"
+  type = string
+}

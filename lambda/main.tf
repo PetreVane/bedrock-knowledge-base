@@ -43,4 +43,15 @@ resource "aws_lambda_permission" "lambda_permission" {
   source_arn    = var.s3_bucket_arn
 }
 
+resource "aws_lambda_function_event_invoke_config" "lambda_execution_event" {
+  function_name = aws_lambda_function.document_ingestion_executor.id
 
+  destination_config {
+    on_success {
+      destination = var.lambda_results_sns_topic
+    }
+    on_failure {
+      destination = var.lambda_results_sns_topic
+    }
+  }
+}

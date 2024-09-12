@@ -48,8 +48,8 @@ data "aws_iam_policy_document" "bedrock_kb_policy" {
 	]
 	effect   = "Allow"
     resources = [
-      "*" //var.embedings_model_arn,
-	  //"arn:aws:bedrock:${var.region}:${data.aws_caller_identity.current.account_id}:knowledge-base/*"       # ARN of all resources in the knowledge base
+      var.embedings_model_arn,
+	  "arn:aws:bedrock:${var.region}:${data.aws_caller_identity.current.account_id}:knowledge-base/*"       # ARN of all resources in the knowledge base
     ]
   }
 }
@@ -90,7 +90,7 @@ resource "aws_iam_role_policy_attachment" "bedrock_kb_policy_attachment" {
 }
 
 resource "time_sleep" "wait_30_seconds" {
-  depends_on = [aws_iam_policy.bedrock_kb_policy_json]
+  depends_on = [aws_iam_role_policy_attachment.bedrock_kb_policy_attachment]
   create_duration = "30s"
 }
 
@@ -110,8 +110,8 @@ resource "aws_iam_role" "tf_lambda_executor_role" {
 	})
 }
 
-resource "aws_iam_policy" "lambda_s3_read_access_and_logging" {
-	name        = "S3ReadAndLoggingPolicy-${random_id.generator.hex}"
+resource "aws_iam_policy" "lambda_permission_policy" {
+	name        = "LambdaPermissionPolicy-${random_id.generator.hex}"
 	description = "Policy which grants a lambda function read access to a specific S3 bucket, CloudWatch Logs permissions and triggers bedrock ingestion job"
 
 	policy = jsonencode({
@@ -142,6 +142,13 @@ resource "aws_iam_policy" "lambda_s3_read_access_and_logging" {
 					],
 				Effect = "Allow",
 				Resource = "arn:aws:bedrock:${var.region}:${data.aws_caller_identity.current.account_id}:knowledge-base/*"
+			},
+			{
+				Action = [
+					"sns:Publish"
+				],
+				Effect = "Allow",
+				Resource = var.sns_topic_arn
 			}
 		]
 	})
@@ -149,6 +156,6 @@ resource "aws_iam_policy" "lambda_s3_read_access_and_logging" {
 
 
 resource "aws_iam_role_policy_attachment" "tf_s3_policy_attach" {
-	policy_arn = aws_iam_policy.lambda_s3_read_access_and_logging.arn
+	policy_arn = aws_iam_policy.lambda_permission_policy.arn
 	role       = aws_iam_role.tf_lambda_executor_role.name
 }
