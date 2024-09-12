@@ -63,3 +63,8 @@ misc.xml
 modules.xml
 vcs.xml
 
+# IntelliJ IDEA files
+.idea/
+*.iml
+
+
