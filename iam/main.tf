@@ -5,6 +5,9 @@ resource "random_id" "generator" {
 
 data "aws_caller_identity" "current" {}
 
+
+
+# ============ Bedrock ============
 # Create an IAM policy document for the Bedrock Knowledge Base
 data "aws_iam_policy_document" "bedrock_kb_policy" {
   # First statement allows S3 actions on the specified bucket and its objects
@@ -61,7 +64,6 @@ resource "aws_iam_policy" "bedrock_kb_policy_json" {
   policy      = data.aws_iam_policy_document.bedrock_kb_policy.json
 }
 
-
 # Create a trust policy document for the Bedrock Knowledge Base role
 data "aws_iam_policy_document" "bedrock_kb_trust_policy" {
   statement {
@@ -94,8 +96,8 @@ resource "time_sleep" "wait_30_seconds" {
   create_duration = "30s"
 }
 
-
-// iam role for lambda function
+# ============ Lambda ============
+// IAM role for lambda function
 resource "aws_iam_role" "tf_lambda_executor_role" {
 	name = "tf_lambda_executor_role-${random_id.generator.hex}"
 	assume_role_policy = jsonencode({
@@ -153,7 +155,6 @@ resource "aws_iam_policy" "lambda_permission_policy" {
 		]
 	})
 }
-
 
 resource "aws_iam_role_policy_attachment" "tf_s3_policy_attach" {
 	policy_arn = aws_iam_policy.lambda_permission_policy.arn
