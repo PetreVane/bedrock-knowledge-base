@@ -1,3 +1,16 @@
+terraform {
+  required_providers {
+    github = {
+      source  = "integrations/github"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "github" {
+  token = var.github_token
+  owner = var.owner
+}
 
 # Retrieves information about the AWS account ID, user, and ARN
 # for the current AWS session.
@@ -44,7 +57,7 @@ This block defines local variables:
  */
 locals {
   // construct a unique role name
-  role_name = "github_actions_role-${data.aws_caller_identity.current.account_id}-${var.aws_region}"
+  role_name = "github_actions_role-${var.aws_region}"
   oidc_provider_arn = var.create_oidc_provider ? (
     length(aws_iam_openid_connect_provider.github_actions) > 0 ?
     aws_iam_openid_connect_provider.github_actions[0].arn :
@@ -79,11 +92,11 @@ data "aws_iam_policy_document" "github_actions_policy" {
     }
 
     # Condition to limit the role assumption to specific GitHub repositories
-    condition {
-      test     = "StringLike"
-      variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repo}:*"]
-    }
+#     condition {
+#       test     = "StringLike"
+#       variable = "token.actions.githubusercontent.com:sub"
+#       values   = ["repo:${var.owner}/${var.github_repo}:*"]
+#     }
   }
 }
 
@@ -137,3 +150,16 @@ resource "aws_iam_role_policy_attachment" "github_actions_policy_attachment" {
   policy_arn = aws_iam_policy.github_actions_ecr_policy.arn
 }
 
+# Adds new entry in GitHub Actions secrets -
+# If this fails, you have to add the secrets manually. Make sure your token has repo permissions
+resource "github_actions_secret" "aws_account_id" {
+  repository       = var.github_repo
+  secret_name      = "AWS_ACCOUNT_ID"
+  plaintext_value  = data.aws_caller_identity.current.account_id
+}
+
+resource "github_actions_secret" "aws_region" {
+  repository  = var.github_repo
+  secret_name = "AWS_REGION"
+  plaintext_value = var.aws_region
+}
