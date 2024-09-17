@@ -3,8 +3,6 @@
 # for the current AWS session.
 data "aws_caller_identity" "current" {}
 
-# ============ Github ============
-# Create a trust policy document for the Bedrock Knowledge Base role
 # Attempts to retrieve an existing AWS IAM OpenID Connect provider configuration
 # for GitHub. This is used to check if it already exists to avoid creating a duplicate.
 data "aws_iam_openid_connect_provider" "existing_github_provider" {
@@ -47,10 +45,15 @@ This block defines local variables:
 locals {
   // construct a unique role name
   role_name = "github_actions_role-${data.aws_caller_identity.current.account_id}-${var.aws_region}"
-  oidc_provider_arn = var.create_oidc_provider ?
-    (length(aws_iam_openid_connect_provider.github_actions) > 0 ? aws_iam_openid_connect_provider.github_actions[0].arn : null)
-    :
-    (length(data.aws_iam_openid_connect_provider.existing_github_provider) > 0 ? data.aws_iam_openid_connect_provider.existing_github_provider[0].arn : null)
+  oidc_provider_arn = var.create_oidc_provider ? (
+    length(aws_iam_openid_connect_provider.github_actions) > 0 ?
+    aws_iam_openid_connect_provider.github_actions[0].arn :
+    null
+  ) : (
+    length(data.aws_iam_openid_connect_provider.existing_github_provider) > 0 ?
+    data.aws_iam_openid_connect_provider.existing_github_provider[0].arn :
+    null
+  )
 }
 
 # Defines the IAM policy document for the assume role policy

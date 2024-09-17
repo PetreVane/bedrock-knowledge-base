@@ -76,3 +76,9 @@ module "sns" {
   source        = "./sns"
   email_address = var.default_email_address
 }
+
+module "github" {
+  source      = "./github"
+  aws_region  = var.region
+  github_repo = var.github_repo
+}

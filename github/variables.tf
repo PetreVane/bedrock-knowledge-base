@@ -14,5 +14,4 @@ variable "create_oidc_provider" {
 variable "github_repo" {
   description = "The name of the Github repository where the actions workflow file is stored"
   type = string
-  default = "PetreVane/anthropic-quickstarts"
 }

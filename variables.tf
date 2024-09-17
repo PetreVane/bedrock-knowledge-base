@@ -27,3 +27,9 @@ variable "default_email_address" {
   type        = string
   default     = "petre.vane@gmail.com"
 }
+
+variable "github_repo" {
+  description = "The name of the Github repository where the actions workflow file is stored"
+  type        = string
+  default     = "PetreVane/anthropic-quickstarts"
+}
