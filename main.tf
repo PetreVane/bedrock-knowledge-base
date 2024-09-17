@@ -81,4 +81,10 @@ module "github" {
   source      = "./github"
   aws_region  = var.region
   github_repo = var.github_repo
+  ecr_repository_arn = module.ecr.ecr_repository_arn
+}
+
+module "ecr" {
+  source     = "./ecr"
+  aws_region = var.region
 }

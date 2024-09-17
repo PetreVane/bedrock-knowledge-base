@@ -15,3 +15,8 @@ variable "github_repo" {
   description = "The name of the Github repository where the actions workflow file is stored"
   type = string
 }
+
+variable "ecr_repository_arn" {
+  description = "The arn of the ecr repository on which the github role has access to"
+  type = string
+}

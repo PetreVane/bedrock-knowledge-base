@@ -119,7 +119,12 @@ resource "aws_iam_policy" "github_actions_ecr_policy" {
           "ecr:CompleteLayerUpload",
           "ecr:PutImage"
         ]
-        Resource = "*"  # !! restrict this to specific ECR repository ARNs
+        Resource = var.ecr_repository_arn  # !! restrict this to specific ECR repository ARNs
+      },
+      {
+        Effect = "Allow"
+        Action = "ecr:GetAuthorizationToken"
+        Resource = "*"
       }
     ]
   })
