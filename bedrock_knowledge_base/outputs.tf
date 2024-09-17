@@ -18,3 +18,7 @@ output "knowledge_base_id" {
 output "knowledge_base_data_source_id" {
   value = aws_bedrockagent_data_source.kb_data_source.data_source_id
 }
+
+output "knowledge_base_name" {
+  value = aws_bedrockagent_knowledge_base.knowledge_base_with_pinecone.name
+}

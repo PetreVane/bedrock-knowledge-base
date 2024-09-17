@@ -78,13 +78,23 @@ module "sns" {
 }
 
 module "github" {
-  source      = "./github"
-  aws_region  = var.region
-  github_repo = var.github_repo
+  source             = "./github"
+  aws_region         = var.region
+  github_repo        = var.github_repo
   ecr_repository_arn = module.ecr.ecr_repository_arn
+  github_token       = var.github_token
+  owner              = var.github_repo_owner
 }
 
 module "ecr" {
   source     = "./ecr"
   aws_region = var.region
+}
+
+module "ssm" {
+  source          = "./ssm"
+  bedrock_kb_id   = module.bedrock.knowledge_base_id
+  bedrock_kb_name = module.bedrock.knowledge_base_name
+  ecr_registry    = module.ecr.ecr_registry_id
+  ecr_repository  = module.ecr.ecr_repository_name
 }

@@ -1,5 +1,11 @@
 
 
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  type = map(string)
+  default = {}
+}
+
 variable "data_source_id" {
   type = string
   description = "Data source id used by bedrock knowledge base"

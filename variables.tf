@@ -31,5 +31,16 @@ variable "default_email_address" {
 variable "github_repo" {
   description = "The name of the Github repository where the actions workflow file is stored"
   type        = string
-  default     = "PetreVane/anthropic-quickstarts"
+  default     = "anthropic-quickstarts"
+}
+
+variable "github_repo_owner" {
+  description = "The owner of the Github repository"
+  type = string
+  default = "PetreVane"
+}
+
+variable "github_token" {
+  description = "Github access token"
+  type        = string
 }

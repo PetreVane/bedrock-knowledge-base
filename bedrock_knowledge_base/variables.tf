@@ -1,4 +1,11 @@
 
+
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  type = map(string)
+  default = {}
+}
+
 variable "knowledge_base_name" {
   type        = string
   description = "The name of the knowledge base."

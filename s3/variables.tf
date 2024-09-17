@@ -1,4 +1,9 @@
 
+variable "tags" {
+  description = "A map of tags to add to all resources"
+  type = map(string)
+  default = {}
+}
 
 variable "lambda_zip_name" {
   description = "The name of the lambda zip file"
