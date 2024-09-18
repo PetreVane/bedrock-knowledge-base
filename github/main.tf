@@ -92,11 +92,11 @@ data "aws_iam_policy_document" "github_actions_policy" {
     }
 
     # Condition to limit the role assumption to specific GitHub repositories
-#     condition {
-#       test     = "StringLike"
-#       variable = "token.actions.githubusercontent.com:sub"
-#       values   = ["repo:${var.owner}/${var.github_repo}:*"]
-#     }
+    condition {
+      test     = "StringLike"
+      variable = "token.actions.githubusercontent.com:sub"
+      values   = ["repo:${var.owner}/${var.github_repo}:*"]
+    }
   }
 }
 
@@ -110,7 +110,6 @@ resource "aws_iam_role" "github_actions_role" {
 # Defines the IAM policy with permissions for GitHub Actions to interact with ECR
 resource "aws_iam_policy" "github_actions_ecr_policy" {
   name        = "${local.role_name}-ecr-policy"
-  path        = "/"
   description = "IAM policy for GitHub Actions role to interact with ECR"
 
   policy = jsonencode({
@@ -132,12 +131,19 @@ resource "aws_iam_policy" "github_actions_ecr_policy" {
           "ecr:CompleteLayerUpload",
           "ecr:PutImage"
         ]
-        Resource = var.ecr_repository_arn  # !! restrict this to specific ECR repository ARNs
+        Resource = var.ecr_repository_arn
       },
       {
         Effect = "Allow"
         Action = "ecr:GetAuthorizationToken"
         Resource = "*"
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "ssm:GetParameter"
+        ]
+        Resource = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/*"
       }
     ]
   })
