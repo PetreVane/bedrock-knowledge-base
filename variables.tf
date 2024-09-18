@@ -11,7 +11,7 @@ variable "pinecone_api_key" {
 }
 
 variable "pinecone_environment" {
-  description = "Pinecone Environemnt"
+  description = "Pinecone Environment"
   type        = string
   default     = "us-east-1"
 }
@@ -31,7 +31,7 @@ variable "default_email_address" {
 variable "github_repo" {
   description = "The name of the Github repository where the actions workflow file is stored"
   type        = string
-  default     = "anthropic-quickstarts"
+  default     = "Claude-Knowledge-Base-Agent-with-RAG"
 }
 
 variable "github_repo_owner" {

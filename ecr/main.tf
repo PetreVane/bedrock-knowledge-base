@@ -14,7 +14,7 @@ data "aws_ecr_lifecycle_policy_document" "keep_only_5" {
 
     selection {
       tag_status      = "tagged"
-      tag_prefix_list = ["stag"]
+      tag_prefix_list = ["STAGING"]
       count_type      = "imageCountMoreThan"
       count_number    = 5
     }
