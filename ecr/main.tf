@@ -5,6 +5,7 @@ resource "random_id" "generator" {
 
 resource "aws_ecr_repository" "docker_repository" {
   name = "private_docker_repo-${var.aws_region}-${random_id.generator.hex}"
+  force_delete = true
 }
 
 data "aws_ecr_lifecycle_policy_document" "keep_only_5" {
