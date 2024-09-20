@@ -5,11 +5,6 @@ variable "aws_region" {
   type = string
 }
 
-variable "ecr_image_uri" {
-  description = "The Docker image URI used by task definition"
-  type = string
-}
-
 variable "cidr_block" {
   description = "The CIDR block for VPC"
   type = string

@@ -106,7 +106,6 @@ module "ecs" {
   aws_region          = var.region
   bedrock_kb_arn      = module.bedrock.knowledge_base_arn
   cidr_block          = "10.0.0.0/16"
-  ecr_image_uri       = "${module.ecr.ecr_repository_url}:latest"
   ecr_repository_arn  = module.ecr.ecr_repository_arn
   ecr_repository_name = module.ecr.ecr_repository_name
   subnet_cidr_block   = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]

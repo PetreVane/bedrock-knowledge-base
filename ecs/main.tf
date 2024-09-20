@@ -3,6 +3,11 @@ resource "random_id" "generator" {
   byte_length = 4
 }
 
+data "aws_ecr_image" "most_recent" {
+  repository_name = var.ecr_repository_name
+  most_recent = true
+}
+
 # Cluster
 resource "aws_ecs_cluster" "main_cluster" {
   name = "main_cluster-${var.aws_region}-${random_id.generator.hex}"
@@ -20,7 +25,7 @@ resource "aws_ecs_task_definition" "container_blueprint" {
   container_definitions = jsonencode([
     {
       name      = "kb_frontend-${var.aws_region}"
-      image     = var.ecr_image_uri
+      image     = data.aws_ecr_image.most_recent.image_uri
       essential = true
       portMappings = [
         {
