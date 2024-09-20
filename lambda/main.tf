@@ -5,7 +5,7 @@ resource "random_id" "generator" {
 
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_file = "${path.module}/index.py"
+  source_file = "${path.module}/document_ingestion.py"
   output_path = "${path.module}/lambda.zip"
 }
 
@@ -19,7 +19,7 @@ resource "aws_s3_object" "lambda_zip" {
 resource "aws_lambda_function" "document_ingestion_executor" {
   function_name = "document_ingestion_executor-${random_id.generator.hex}"
   role          = var.tf_lambda_executor_role
-  handler       = "index.handler"
+  handler       = "document_ingestion.handler"
   s3_bucket     = var.s3_bucket_id // should point to: module.s3.lambda_object_key
   s3_key        = aws_s3_object.lambda_zip.key
   memory_size   = 128

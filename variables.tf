@@ -36,8 +36,8 @@ variable "github_repo" {
 
 variable "github_repo_owner" {
   description = "The owner of the Github repository"
-  type = string
-  default = "PetreVane"
+  type        = string
+  default     = "PetreVane"
 }
 
 variable "github_token" {
