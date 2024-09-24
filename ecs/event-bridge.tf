@@ -11,7 +11,7 @@ resource "aws_cloudwatch_event_rule" "ecr_image_push" {
       action-type = ["PUSH"]
       result = ["SUCCESS"]
       repository-name = [var.ecr_repository_name]
-      "image-tag": [{"prefix": "STAGING-"}]
+      "image-tag": [{"prefix": "${var.image_tag}-"}]
     }
   })
 }

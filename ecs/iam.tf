@@ -1,4 +1,4 @@
-
+data "aws_caller_identity" "current" {}
 
 # ==== ECS Execution Role ===
 resource "aws_iam_role" "ecs_execution_role" {
@@ -23,6 +23,7 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
 }
 
 resource "aws_iam_policy" "ecs_execution_role_ecr_access" {
+  description = "IAM policy for ECS tasks to access ECR and Parameter Store"
   policy = jsonencode({
     "Version": "2012-10-17",
     "Statement": [
@@ -32,9 +33,17 @@ resource "aws_iam_policy" "ecs_execution_role_ecr_access" {
                 "ecr:*"
             ],
             "Resource": var.ecr_repository_arn
-        }
+        },
+      {
+        Effect = "Allow",
+        Action = [
+          "ssm:GetParameter",
+          "ssm:GetParameters"
+        ]
+        Resource = "*"
+      }
     ]
-})
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy_attachment" {
@@ -65,55 +74,66 @@ resource "aws_iam_role_policy_attachment" "ecs_task_role_policy_attachment" {
 }
 
 resource "aws_iam_policy" "ecs_bedrock_access" {
-  policy = jsonencode({
+  name        = "ecs_bedrock_access_policy-${random_id.generator.hex}"
+  description = "IAM policy for ECS tasks to access Bedrock and related services"
 
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "BedrockAll",
-            "Effect": "Allow",
-            "Action": [
-                "bedrock:*"
-            ],
-            "Resource": var.bedrock_kb_arn
-        },
-        {
-            "Sid": "DescribeKey",
-            "Effect": "Allow",
-            "Action": [
-                "kms:DescribeKey"
-            ],
-            "Resource": "arn:*:kms:*:::*"
-        },
-        {
-            "Sid": "APIsWithAllResourceAccess",
-            "Effect": "Allow",
-            "Action": [
-                "iam:ListRoles",
-                "ec2:DescribeVpcs",
-                "ec2:DescribeSubnets",
-                "ec2:DescribeSecurityGroups"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Sid": "PassRoleToBedrock",
-            "Effect": "Allow",
-            "Action": [
-                "iam:PassRole"
-            ],
-            "Resource": "arn:aws:iam::*:role/*AmazonBedrock*",
-            "Condition": {
-                "StringEquals": {
-                    "iam:PassedToService": [
-                        "bedrock.amazonaws.com"
-                    ]
-                }
-            }
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "BedrockAll"
+        Effect = "Allow"
+        Action = [
+          "bedrock:*"
+        ]
+        Resource = var.bedrock_kb_arn
+      },
+      {
+        Sid    = "DescribeKey"
+        Effect = "Allow"
+        Action = [
+          "kms:DescribeKey"
+        ]
+        Resource = "arn:*:kms:*:::*"
+      },
+      {
+        Sid    = "APIsWithAllResourceAccess"
+        Effect = "Allow"
+        Action = [
+          "iam:ListRoles",
+          "ec2:DescribeVpcs",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeSecurityGroups"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "PassRoleToBedrock"
+        Effect = "Allow"
+        Action = [
+          "iam:PassRole"
+        ]
+        Resource = "arn:aws:iam::*:role/*AmazonBedrock*"
+        Condition = {
+          StringEquals = {
+            "iam:PassedToService" = [
+              "bedrock.amazonaws.com"
+            ]
+          }
         }
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "ssm:GetParameter",
+          "ssm:GetParameters"
+        ]
+        Resource = "*"
+      }
     ]
   })
 }
+
 
 resource "aws_iam_role" "eventbridge_ecs_role" {
   name = "eventbridge_ecs_role-${random_id.generator.hex}"
@@ -162,4 +182,9 @@ resource "aws_iam_role_policy" "eventbridge_update_ecs_policy" {
       }
     ]
   })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_execution_role_cloudwatch_policy" {
+  role       = aws_iam_role.ecs_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
 }
