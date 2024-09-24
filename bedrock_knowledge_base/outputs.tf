@@ -22,3 +22,11 @@ output "knowledge_base_data_source_id" {
 output "knowledge_base_name" {
   value = aws_bedrockagent_knowledge_base.knowledge_base_with_pinecone.name
 }
+
+output "bedrock_user_access_key_id" {
+  value = aws_iam_access_key.bedrock_user_key.id
+}
+
+output "bedrock_user_access_key_secret" {
+  value = aws_iam_access_key.bedrock_user_key.secret
+}
