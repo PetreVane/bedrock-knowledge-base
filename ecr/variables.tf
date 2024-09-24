@@ -11,3 +11,8 @@ variable "tags" {
   type = map(string)
   default = {}
 }
+
+variable "image_tag" {
+  description = "The tag attached to the image when it is pushed to ECR repository"
+  type = string
+}
