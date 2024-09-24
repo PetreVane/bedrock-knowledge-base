@@ -44,3 +44,68 @@ resource "aws_secretsmanager_secret_policy" "pinecone_api_key_policy" {
     ]
   })
 }
+
+resource "aws_secretsmanager_secret" "bedrock_user_credentials" {
+  name = "bedrock_user_key-${random_id.generator.hex}"
+}
+
+resource "aws_secretsmanager_secret_version" "bedrock_user_credentials" {
+  secret_id = aws_secretsmanager_secret.bedrock_user_credentials.id
+  secret_string = jsonencode({
+    access_key_id = var.bedrock_user_access_key_id
+    secret_access_key = var.bedrock_user_access_key_secret
+  })
+}
+
+resource "aws_secretsmanager_secret" "anthropic_api_key" {
+  name = "anthropic_api_key-${random_id.generator.hex}"
+}
+
+resource "aws_secretsmanager_secret_version" "anthropic_api_key" {
+  secret_id = aws_secretsmanager_secret.anthropic_api_key.id
+  secret_string = jsonencode(var.anthropic_api_key)
+}
+
+resource "aws_secretsmanager_secret_policy" "bedrock_secret_policy" {
+  secret_arn = aws_secretsmanager_secret.bedrock_user_credentials.arn
+
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        "Action": [
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:ListSecrets"
+        ]
+        "Resource": aws_secretsmanager_secret.bedrock_user_credentials.arn
+      }
+    ]
+  })
+}
+
+resource "aws_secretsmanager_secret_policy" "anthropic_secret_policy" {
+  secret_arn = aws_secretsmanager_secret.anthropic_api_key.arn
+
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        },
+        "Action": [
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:ListSecrets"
+        ],
+        "Resource": aws_secretsmanager_secret.anthropic_api_key.arn
+      }
+    ]
+  })
+}
