@@ -44,3 +44,14 @@ variable "github_token" {
   description = "Github access token"
   type        = string
 }
+
+variable "anthropic_api_key" {
+  description = "Anthropic API Key for Claude"
+  type        = string
+}
+
+variable "aws_environment" {
+  description = "The AWS environment in which this solution is deployed. Defaults to DEV"
+  type        = string
+  default     = "DEV"
+}
