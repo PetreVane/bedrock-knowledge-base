@@ -79,7 +79,7 @@ data "aws_iam_policy_document" "bedrock_kb_trust_policy" {
   }
 }
 
-# Create the IAM role for the Bedrock Knowledge Base
+# Creates the IAM role for the Bedrock Knowledge Base
 resource "aws_iam_role" "bedrock_kb_role" {
   name               = "BedrockKnowledgeBaseRole-${var.region}-${random_id.generator.hex}"
   assume_role_policy = data.aws_iam_policy_document.bedrock_kb_trust_policy.json
@@ -97,7 +97,7 @@ resource "time_sleep" "wait_30_seconds" {
 }
 
 # ============ Lambda ============
-// IAM role for lambda function
+// IAM role for lambda function which triggers document ingestion in Bedrock
 resource "aws_iam_role" "tf_lambda_executor_role" {
 	name = "tf_lambda_executor_role-${random_id.generator.hex}"
 	assume_role_policy = jsonencode({

@@ -23,7 +23,7 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
 }
 
 resource "aws_iam_policy" "ecs_execution_role_ecr_access" {
-  description = "IAM policy for ECS tasks to access ECR and Parameter Store"
+  description = "IAM policy for ECS tasks to other AWS services"
   policy = jsonencode({
     "Version": "2012-10-17",
     "Statement": [
@@ -33,15 +33,7 @@ resource "aws_iam_policy" "ecs_execution_role_ecr_access" {
                 "ecr:*"
             ],
             "Resource": var.ecr_repository_arn
-        },
-      {
-        Effect = "Allow",
-        Action = [
-          "ssm:GetParameter",
-          "ssm:GetParameters"
-        ]
-        Resource = "*"
-      }
+        }
     ]
   })
 }
@@ -81,54 +73,46 @@ resource "aws_iam_policy" "ecs_bedrock_access" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid    = "BedrockAll"
-        Effect = "Allow"
-        Action = [
+        "Sid"    : "BedrockAll",
+        "Effect" : "Allow",
+        "Action": [
           "bedrock:*"
-        ]
-        Resource = var.bedrock_kb_arn
+        ],
+        "Resource": "${var.bedrock_kb_arn}"
       },
       {
-        Sid    = "DescribeKey"
-        Effect = "Allow"
-        Action = [
-          "kms:DescribeKey"
-        ]
-        Resource = "arn:*:kms:*:::*"
-      },
-      {
-        Sid    = "APIsWithAllResourceAccess"
-        Effect = "Allow"
-        Action = [
+        "Sid"    : "APIsWithAllResourceAccess",
+        "Effect": "Allow",
+        "Action" : [
           "iam:ListRoles",
           "ec2:DescribeVpcs",
           "ec2:DescribeSubnets",
           "ec2:DescribeSecurityGroups"
-        ]
-        Resource = "*"
+        ],
+        "Resource": "*"
       },
       {
-        Sid    = "PassRoleToBedrock"
-        Effect = "Allow"
-        Action = [
-          "iam:PassRole"
-        ]
-        Resource = "arn:aws:iam::*:role/*AmazonBedrock*"
-        Condition = {
-          StringEquals = {
-            "iam:PassedToService" = [
-              "bedrock.amazonaws.com"
-            ]
-          }
-        }
+        "Sid"    : "PassRoleToBedrock",
+        "Effect": "Allow",
+        "Action": [
+          "iam:*"
+        ],
+        "Resource": "${var.bedrock_kb_arn}"
       },
       {
-        Effect = "Allow",
-        Action = [
-          "ssm:GetParameter",
-          "ssm:GetParameters"
-        ]
-        Resource = "*"
+        "Effect" : "Allow",
+        "Action" : [
+          "logs:*"
+        ],
+        "Resource" : "arn:aws:logs:*:*:*"
+      },
+      {
+        "Sid": "IAMUserAccess",
+        "Effect": "Allow",
+        "Action": [
+          "iam:*"
+        ],
+        "Resource": "${var.bedrock_user}"
       }
     ]
   })
