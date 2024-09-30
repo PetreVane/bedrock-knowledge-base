@@ -30,3 +30,7 @@ output "bedrock_user_access_key_id" {
 output "bedrock_user_access_key_secret" {
   value = aws_iam_access_key.bedrock_user_key.secret
 }
+
+output "bedrock_user_arn" {
+  value = aws_iam_user.bedrock_user.arn
+}

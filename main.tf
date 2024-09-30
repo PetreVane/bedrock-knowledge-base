@@ -126,4 +126,5 @@ module "ecs" {
   anthropic_api_key              = module.ssm_parameter_store.anthropic_api_key
   bedrock_user_access_key_id     = module.ssm_parameter_store.bedrock_user_access_key_id
   bedrock_user_access_key_secret = module.ssm_parameter_store.bedrock_user_access_key_secret
+  bedrock_user                   = module.bedrock.bedrock_user_arn
 }
