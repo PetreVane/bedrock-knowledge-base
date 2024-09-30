@@ -3,9 +3,12 @@ resource "random_id" "generator" {
   byte_length = 4
 }
 
-data "aws_ecr_image" "most_recent" {
-  repository_name = var.ecr_repository_name
-  most_recent = true
+locals {
+  image_uri = try(var.ecr_repository_name, "") != "" ? (
+    "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/${var.ecr_repository_name}:latest"
+  ) : (
+    "public.ecr.aws/ecs-sample-image/amazon-ecs-sample:latest"
+  )
 }
 
 resource "aws_cloudwatch_log_group" "ecs_logs" {
@@ -31,9 +34,23 @@ resource "aws_ecs_task_definition" "container_blueprint" {
   container_definitions = jsonencode([
     {
       name      = "kb_frontend-${var.aws_region}"
-      image     =  data.aws_ecr_image.most_recent.image_uri
+      image     =  local.image_uri
       essential = true
-      logCofiguration = {
+
+      /*
+       Tails the NPM debug log
+      - Starts your Node.js application with npm start
+      - Tails any log files in the /root/.npm/_logs/ directory
+      - Redirects the tailed output to stdout (file descriptor 1)
+      - Uses wait to keep the container running
+      */
+    command = [
+        "/bin/sh",
+        "-c",
+        "npm start & tail -f /root/.npm/_logs/*.log > /proc/1/fd/1 2>&1 & wait"
+      ]
+
+      logConfiguration = {
         logDriver = "awslogs"
         options = {
           "awslogs-group"         = aws_cloudwatch_log_group.ecs_logs.name
@@ -45,20 +62,6 @@ resource "aws_ecs_task_definition" "container_blueprint" {
         {
           containerPort = 3000
           hostPort      = 3000
-        }
-      ]
-       secrets = [
-        {
-          name = "BAWS_ACCESS_KEY_ID"
-          valueFrom = "${var.bedrock_user_access_key_id}"
-        },
-        {
-          name = "BAWS_SECRET_ACCESS_KEY"
-          valueFrom = "${var.bedrock_user_access_key_secret}"
-        },
-        {
-          name = "ANTHROPIC_API_KEY"
-          valueFrom = "${var.anthropic_api_key}"
         }
       ]
     }
