@@ -21,10 +21,10 @@ provider "pinecone" {
 
 module "s3" {
   source                            = "./s3"
-  lambda_arn                        = module.lambda.lambda_function_arn
-  lambda_permission_allow_execution = module.lambda.lambda_permission_allow_execution
-  lambda_zip_file_path              = module.lambda.lambda_zip_file_path
-  lambda_zip_name                   = module.lambda.lambda_zip_file_name
+  lambda_arn                        = module.lambda.document_ingestion_executor_arn
+  lambda_permission_allow_execution = module.lambda.lambda_s3_allow_execution_id
+  lambda_zip_file_path              = module.lambda.document_ingestion_zip_output_path
+  lambda_zip_name                   = module.lambda.document_ingestion_zip_id
 }
 
 module "secrets_manager" {
@@ -72,9 +72,15 @@ module "lambda" {
   knowledge_base_id        = module.bedrock.knowledge_base_id
   s3_bucket_arn            = module.s3.kb_bucket_arn
   s3_bucket_id             = module.s3.kb_bucket_id
-  tf_lambda_executor_role  = module.iam.tf_lambda_executor_role_arn
+  tf_lambda_executor_role  = module.iam.lambda_document_ingestion_arn
   s3_bucket_key            = module.s3.lambda_object_key
   lambda_results_sns_topic = module.sns.sns_topic_arn
+
+  api_gateway_execution_arn = module.api_gateway.api_gateway_execution_arn
+  aws_access_key_id         = module.bedrock.bedrock_user_access_key_id
+  aws_region                = var.region
+  aws_secret_access_key     = module.bedrock.bedrock_user_access_key_secret
+  kb_request_processor_role = module.iam.lambda_request_processor_arn
 }
 
 module "sns" {
@@ -127,4 +133,10 @@ module "ecs" {
   bedrock_user_access_key_id     = module.ssm_parameter_store.bedrock_user_access_key_id
   bedrock_user_access_key_secret = module.ssm_parameter_store.bedrock_user_access_key_secret
   bedrock_user                   = module.bedrock.bedrock_user_arn
+}
+
+module "api_gateway" {
+  source                       = "./api_gateway"
+  request_processor_arn        = module.lambda.request_processor_arn
+  request_processor_invoke_arn = module.lambda.request_processor_invoke_arn
 }
