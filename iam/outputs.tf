@@ -12,6 +12,10 @@ output "iam_policy_attachment_id" {
   value = aws_iam_role_policy_attachment.bedrock_kb_policy_attachment.id
 }
 
-output "tf_lambda_executor_role_arn" {
-  value = aws_iam_role.tf_lambda_executor_role.arn
+output "lambda_document_ingestion_arn" {
+  value = aws_iam_role.lambda_document_ingestion_role.arn
+}
+
+output "lambda_request_processor_arn" {
+  value = aws_iam_role.lambda_request_executor_role.arn
 }

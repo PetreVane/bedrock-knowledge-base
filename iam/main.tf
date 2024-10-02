@@ -5,8 +5,6 @@ resource "random_id" "generator" {
 
 data "aws_caller_identity" "current" {}
 
-
-
 # ============ Bedrock ============
 # Create an IAM policy document for the Bedrock Knowledge Base
 data "aws_iam_policy_document" "bedrock_kb_policy" {
@@ -98,8 +96,8 @@ resource "time_sleep" "wait_30_seconds" {
 
 # ============ Lambda ============
 // IAM role for lambda function which triggers document ingestion in Bedrock
-resource "aws_iam_role" "tf_lambda_executor_role" {
-	name = "tf_lambda_executor_role-${random_id.generator.hex}"
+resource "aws_iam_role" "lambda_document_ingestion_role" {
+	name = "lambda_document_ingestion_role-${random_id.generator.hex}"
 	assume_role_policy = jsonencode({
 		Version = "2012-10-17"
 		Statement = [{
@@ -112,7 +110,7 @@ resource "aws_iam_role" "tf_lambda_executor_role" {
 	})
 }
 
-resource "aws_iam_policy" "lambda_permission_policy" {
+resource "aws_iam_policy" "document_ingestion_permission_policy" {
 	name        = "LambdaPermissionPolicy-${random_id.generator.hex}"
 	description = "Policy which grants a lambda function read access to a specific S3 bucket, CloudWatch Logs permissions and triggers bedrock ingestion job"
 
@@ -156,7 +154,54 @@ resource "aws_iam_policy" "lambda_permission_policy" {
 	})
 }
 
-resource "aws_iam_role_policy_attachment" "tf_s3_policy_attach" {
-	policy_arn = aws_iam_policy.lambda_permission_policy.arn
-	role       = aws_iam_role.tf_lambda_executor_role.name
+resource "aws_iam_role_policy_attachment" "document_ingestion_policy_attach" {
+	policy_arn = aws_iam_policy.document_ingestion_permission_policy.arn
+	role       = aws_iam_role.lambda_document_ingestion_role.name
+}
+
+// IAM role for lambda function triggered by API Gateway which retrieves documents from Bedrock Knowledge Base
+resource "aws_iam_role" "lambda_request_executor_role" {
+	name = "lambda_request_executor_role-${random_id.generator.hex}"
+
+	assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+# IAm policy for Bedrock Access
+resource "aws_iam_role_policy" "lambda_request_executor_policy" {
+	role   = aws_iam_role.lambda_request_executor_role.name
+	policy = jsonencode({
+		Version  = "2012-10-17"
+		Statement = [
+			{
+				"Effect": "Allow",
+				"Action": [
+					"bedrock:*"
+				],
+				"Resource": "${var.knowledge_base_arn}"
+			}
+		]
+	})
+}
+
+# IAM Policy for CloudWatch Logs
+resource "aws_iam_role_policy_attachment" "lambda_request_executor_logs" {
+  role       = aws_iam_role.lambda_request_executor_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+# Optional: IAM Policy for API Gateway logging (if needed)
+resource "aws_iam_role_policy_attachment" "api_gateway_logging" {
+  role       = aws_iam_role.lambda_request_executor_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
 }
