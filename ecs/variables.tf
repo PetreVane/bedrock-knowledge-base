@@ -67,11 +67,6 @@ variable "bedrock_user_access_key_secret" {
   type = string
 }
 
-variable "anthropic_api_key" {
-  description = "Anthropic API key for Claude"
-  type = string
-}
-
 variable "bedrock_user" {
   description = "The user for which have credentials have been generated. These are used by the web app to interact with the AWS account"
   type = string

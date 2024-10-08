@@ -57,12 +57,12 @@ resource "aws_secretsmanager_secret_version" "bedrock_user_credentials" {
   })
 }
 
-resource "aws_secretsmanager_secret" "anthropic_api_key" {
-  name = "anthropic_api_key-${random_id.generator.hex}"
+resource "aws_secretsmanager_secret" "claude_api_key" {
+  name = "claude_api_key-${random_id.generator.hex}"
 }
 
-resource "aws_secretsmanager_secret_version" "anthropic_api_key" {
-  secret_id = aws_secretsmanager_secret.anthropic_api_key.id
+resource "aws_secretsmanager_secret_version" "claude_api_key_version" {
+  secret_id = aws_secretsmanager_secret.claude_api_key.id
   secret_string = jsonencode(var.anthropic_api_key)
 }
 
@@ -88,8 +88,8 @@ resource "aws_secretsmanager_secret_policy" "bedrock_secret_policy" {
   })
 }
 
-resource "aws_secretsmanager_secret_policy" "anthropic_secret_policy" {
-  secret_arn = aws_secretsmanager_secret.anthropic_api_key.arn
+resource "aws_secretsmanager_secret_policy" "claude_secret_policy" {
+  secret_arn = aws_secretsmanager_secret.claude_api_key.arn
 
   policy = jsonencode({
     "Version": "2012-10-17",
@@ -104,7 +104,7 @@ resource "aws_secretsmanager_secret_policy" "anthropic_secret_policy" {
           "secretsmanager:GetSecretValue",
           "secretsmanager:ListSecrets"
         ],
-        "Resource": aws_secretsmanager_secret.anthropic_api_key.arn
+        "Resource": aws_secretsmanager_secret.claude_api_key.arn
       }
     ]
   })

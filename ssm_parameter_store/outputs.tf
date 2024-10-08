@@ -14,7 +14,3 @@ output "bedrock_user_access_key_id" {
 output "bedrock_user_access_key_secret" {
   value = aws_ssm_parameter.bedrock_user_access_key_secret.arn
 }
-
-output "anthropic_api_key" {
-  value = aws_ssm_parameter.anthropic_api_key.arn
-}

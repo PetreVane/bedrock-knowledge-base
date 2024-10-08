@@ -9,5 +9,5 @@ output "bedrock_user_credentials_arn" {
 }
 
 output "anthropic_api_key_arn" {
-  value = aws_secretsmanager_secret_version.anthropic_api_key.arn
+  value = aws_secretsmanager_secret_version.claude_api_key_version.arn
 }

@@ -117,19 +117,17 @@ module "ssm_parameter_store" {
 }
 
 module "ecs" {
-  source                       = "./ecs"
-  availability_zone            = ["${var.region}a", "${var.region}b", "${var.region}c"]
-  aws_region                   = var.region
-  bedrock_kb_arn               = module.bedrock.knowledge_base_arn
-  cidr_block                   = "10.0.0.0/16"
-  ecr_repository_arn           = module.ssm_parameter_store.ecr_repository_arn
-  ecr_repository_name          = module.ssm_parameter_store.ecr_repository_name
-  subnet_cidr_block            = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  anthropic_api_key_arn        = module.secrets_manager.anthropic_api_key_arn
-  bedrock_user_credentials_arn = module.secrets_manager.bedrock_user_credentials_arn
-  image_tag                    = var.aws_environment
-
-  anthropic_api_key              = module.ssm_parameter_store.anthropic_api_key
+  source                         = "./ecs"
+  availability_zone              = ["${var.region}a", "${var.region}b", "${var.region}c"]
+  aws_region                     = var.region
+  bedrock_kb_arn                 = module.bedrock.knowledge_base_arn
+  cidr_block                     = "10.0.0.0/16"
+  ecr_repository_arn             = module.ssm_parameter_store.ecr_repository_arn
+  ecr_repository_name            = module.ssm_parameter_store.ecr_repository_name
+  subnet_cidr_block              = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  bedrock_user_credentials_arn   = module.secrets_manager.bedrock_user_credentials_arn
+  image_tag                      = var.aws_environment
+  anthropic_api_key_arn          = module.secrets_manager.anthropic_api_key_arn
   bedrock_user_access_key_id     = module.ssm_parameter_store.bedrock_user_access_key_id
   bedrock_user_access_key_secret = module.ssm_parameter_store.bedrock_user_access_key_secret
   bedrock_user                   = module.bedrock.bedrock_user_arn
