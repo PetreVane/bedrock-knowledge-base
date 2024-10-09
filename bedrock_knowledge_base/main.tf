@@ -39,6 +39,7 @@ resource "aws_bedrockagent_knowledge_base" "knowledge_base_with_pinecone" {
       # Specify the ARN of the embedding model using the current partition and region
       embedding_model_arn = "arn:${data.aws_partition.current.partition}:bedrock:${data.aws_region.current.name}::foundation-model/${var.embedings_model}"
     }
+
   }
   
   # Configure the storage settings for the knowledge base
@@ -89,4 +90,16 @@ resource "aws_bedrockagent_data_source" "kb_data_source" {
       inclusion_prefixes = [var.source_bucket_prefix]
     }
   }
+
+  vector_ingestion_configuration {
+    chunking_configuration {
+      chunking_strategy = "SEMANTIC"
+      semantic_chunking_configuration {
+        max_token         = 512
+        buffer_size = 1
+        breakpoint_percentile_threshold = 95
+      }
+    }
+  }
+
 }
