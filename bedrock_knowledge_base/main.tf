@@ -93,13 +93,26 @@ resource "aws_bedrockagent_data_source" "kb_data_source" {
 
   vector_ingestion_configuration {
     chunking_configuration {
-      chunking_strategy = "SEMANTIC"
-      semantic_chunking_configuration {
-        max_token         = 512
-        buffer_size = 1
-        breakpoint_percentile_threshold = 95
+      chunking_strategy = "HIERARCHICAL"
+      hierarchical_chunking_configuration {
+        overlap_tokens = 200
+        level_configuration {
+          max_tokens = 1500
+        }
+        level_configuration {
+          max_tokens = 750
+        }
       }
     }
+
+    # chunking_configuration {
+    #   chunking_strategy = "SEMANTIC"
+    #   semantic_chunking_configuration {
+    #     max_token         = 512
+    #     buffer_size = 1
+    #     breakpoint_percentile_threshold = 95
+    #   }
+    # }
   }
 
 }

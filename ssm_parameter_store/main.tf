@@ -50,3 +50,10 @@ resource "aws_ssm_parameter" "bedrock_user_access_key_secret" {
   value = var.bedrock_user_access_key_secret
   tags = merge(var.tags, { Name = "terraform_project" })
 }
+
+resource "aws_ssm_parameter" "anthropic_api_key" {
+  name = "/bedrock/anthropic_api_key"
+  type = "String"
+  value = var.anthropic_api_key
+  tags = merge(var.tags, { Name = "terraform_project" })
+}
