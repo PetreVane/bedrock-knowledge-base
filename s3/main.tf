@@ -106,4 +106,11 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     filter_prefix       = "knowledge_base_files/"
     filter_suffix       = ".xlsx"
   }
+
+  lambda_function {
+    lambda_function_arn = var.lambda_arn
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "knowledge_base_files/"
+    filter_suffix       = ".tf"
+  }
 }
