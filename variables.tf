@@ -37,7 +37,7 @@ variable "obsidian_github_repo" {
 variable "github_repositories" {
   description = "The list of github repositories to be added to the OIDC provider"
   type        = list(string)
-  default     = ["Claude-Knowledge-Base-Agent-with-RAG", "obsidian"]
+  default     = ["Claude-Knowledge-Base-Agent-with-RAG", "obsidian", "bedrock-knowledge-base"]
 }
 
 variable "github_repo_owner" {
