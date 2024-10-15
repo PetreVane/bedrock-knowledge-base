@@ -1,0 +1,64 @@
+name: Upload Obsidian vault to S3 bucket
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  upload-to-s3:
+    name: Upload Code files to S3
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github_actions_role-${{ secrets.AWS_REGION }}
+          audience: sts.amazonaws.com
+
+      - name: Retrieve bucket name from Parameter Store
+        run: |
+          echo "S3_BUCKET_NAME=$(aws ssm get-parameter --name '/github-actions/s3_bucket_name' --query 'Parameter.Value' --output text)" >> $GITHUB_ENV
+        continue-on-error: true
+
+      - name: Check if bucket name was retrieved
+        if: env.S3_BUCKET_NAME == ''
+        run: |
+          echo "Failed to retrieve S3 bucket name from Parameter Store"
+          exit 1
+
+      - name: Upload files to S3 bucket
+        run: |
+          if aws s3 sync . s3://${S3_BUCKET_NAME}/knowledge_base_files/code_files/${{github.repository}} \
+            --exclude "*" \
+            --include "*.tf" \
+            --include ".py" \
+            --delete; then
+            echo "Successfully uploaded Code files to S3"
+          else
+            echo "Failed to upload files to S3"
+            exit 1
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.name,
+              title: 'Workflow failed: Upload code files to S3',
+              body: 'The workflow to upload the code files to S3 has failed. Please check the [workflow run](https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}) for more details.'
+            })
