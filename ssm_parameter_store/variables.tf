@@ -44,3 +44,8 @@ variable "anthropic_api_key" {
   description = "Anthropic API key for Claude"
   type = string
 }
+
+variable "s3_bucket_name" {
+  description = "Name of the S3 bucket where the data is stored"
+  type = string
+}

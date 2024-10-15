@@ -57,3 +57,10 @@ resource "aws_ssm_parameter" "anthropic_api_key" {
   value = var.anthropic_api_key
   tags = merge(var.tags, { Name = "terraform_project" })
 }
+
+resource "aws_ssm_parameter" "as3_bucket_name" {
+  name = "/github-actions/s3_bucket_name"
+  type = "String"
+  value = var.s3_bucket_name
+  tags = merge(var.tags, { Name = "terraform_project" })
+}

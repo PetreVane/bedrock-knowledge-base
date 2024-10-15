@@ -90,12 +90,13 @@ module "sns" {
 }
 
 module "github" {
-  source             = "./github"
-  aws_region         = var.region
-  github_repo        = var.github_repo
-  ecr_repository_arn = module.ecr.ecr_repository_arn
-  github_token       = var.github_token
-  owner              = var.github_repo_owner
+  source                    = "./github"
+  aws_region                = var.region
+  ecr_repository_arn        = module.ecr.ecr_repository_arn
+  github_token              = var.github_token
+  owner                     = var.github_repo_owner
+  knowledge_base_bucket_arn = module.s3.kb_bucket_arn
+  github_repositories       = var.github_repositories
 }
 
 module "ecr" {
@@ -115,6 +116,7 @@ module "ssm_parameter_store" {
   anthropic_api_key              = var.anthropic_api_key
   bedrock_user_access_key_id     = module.bedrock.bedrock_user_access_key_id
   bedrock_user_access_key_secret = module.bedrock.bedrock_user_access_key_secret
+  s3_bucket_name                 = module.s3.kb_bucket_id
 }
 
 module "ecs" {

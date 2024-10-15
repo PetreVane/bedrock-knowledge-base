@@ -95,7 +95,7 @@ data "aws_iam_policy_document" "github_actions_policy" {
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.owner}/${var.github_repo}:*"]
+      values = [ for repository in var.github_repositories : "repo:${var.owner}/${repository}:*"]
     }
   }
 }
@@ -103,21 +103,21 @@ data "aws_iam_policy_document" "github_actions_policy" {
 # Creates the IAM role for GitHub Actions
 resource "aws_iam_role" "github_actions_role" {
   name               = local.role_name
-  # Uses the assume role policy document defined above
+  # Defines a trust relationship
   assume_role_policy = data.aws_iam_policy_document.github_actions_policy.json
 }
 
-# Defines the IAM policy with permissions for GitHub Actions to interact with ECR
-resource "aws_iam_policy" "github_actions_ecr_policy" {
-  name        = "${local.role_name}-ecr-policy"
-  description = "IAM policy for GitHub Actions role to interact with ECR"
+# Defines the IAM policy with permissions for GitHub Actions to interact with AWS
+resource "aws_iam_policy" "github_actions_permission_policy" {
+  name        = "${local.role_name}-permission-policy"
+  description = "IAM policy for GitHub Actions role to interact with several AWS Services"
 
   policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        Effect = "Allow"
-        Action = [
+        "Effect" : "Allow",
+        "Action" : [
           "ecr:GetAuthorizationToken",
           "ecr:BatchCheckLayerAvailability",
           "ecr:GetDownloadUrlForLayer",
@@ -130,43 +130,66 @@ resource "aws_iam_policy" "github_actions_ecr_policy" {
           "ecr:UploadLayerPart",
           "ecr:CompleteLayerUpload",
           "ecr:PutImage"
-        ]
-        Resource = var.ecr_repository_arn
+        ],
+        "Resource" : var.ecr_repository_arn
       },
       {
-        Effect = "Allow"
-        Action = "ecr:GetAuthorizationToken"
-        Resource = "*"
+        "Effect" : "Allow",
+        "Action" : "ecr:GetAuthorizationToken",
+        "Resource" : "*"
       },
       {
-        Effect = "Allow",
-        Action = [
+        "Effect" : "Allow",
+        "Action" : [
           "ssm:GetParameter",
           "ssm:GetParameters"
-        ]
-        Resource = "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/*"
+        ],
+        "Resource" : "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:PutObject",
+          "s3:ListObjects",
+          "s3:GetObject",
+          "s3:DeleteObject",
+          "s3:ListMultipartUploadParts",
+          "s3:AbortMultipartUpload"
+        ],
+        "Resource": "${var.knowledge_base_bucket_arn}/*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "s3:ListBucket",
+          "s3:GetBucketLocation"
+        ],
+        "Resource": "${var.knowledge_base_bucket_arn}"
       }
     ]
   })
 }
 
 
+
 # Attach the IAM policy to the IAM role
 resource "aws_iam_role_policy_attachment" "github_actions_policy_attachment" {
   role       = aws_iam_role.github_actions_role.name
-  policy_arn = aws_iam_policy.github_actions_ecr_policy.arn
+  policy_arn = aws_iam_policy.github_actions_permission_policy.arn
 }
 
 # Adds new entry in GitHub Actions secrets -
 # If this fails, you have to add the secrets manually. Make sure your token has repo permissions
 resource "github_actions_secret" "aws_account_id" {
-  repository       = var.github_repo
+  count = length(var.github_repositories)
+  repository       = var.github_repositories[count.index]
   secret_name      = "AWS_ACCOUNT_ID"
   plaintext_value  = data.aws_caller_identity.current.account_id
 }
 
 resource "github_actions_secret" "aws_region" {
-  repository  = var.github_repo
+  count = length(var.github_repositories)
+  repository       = var.github_repositories[count.index]
   secret_name = "AWS_REGION"
   plaintext_value = var.aws_region
 }

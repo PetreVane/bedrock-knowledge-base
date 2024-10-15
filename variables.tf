@@ -22,10 +22,22 @@ variable "default_email_address" {
   default     = "petre.vane@gmail.com"
 }
 
-variable "github_repo" {
-  description = "The name of the Github repository where the actions workflow file is stored"
+variable "frontend_github_repo" {
+  description = "The name of the frontend github repository where the actions workflow file is stored"
   type        = string
   default     = "Claude-Knowledge-Base-Agent-with-RAG"
+}
+
+variable "obsidian_github_repo" {
+  description = "The name of the Obsidian github repository where the actions workflow file is stored"
+  type        = string
+  default     = "obsidian"
+}
+
+variable "github_repositories" {
+  description = "The list of github repositories to be added to the OIDC provider"
+  type        = list(string)
+  default     = ["Claude-Knowledge-Base-Agent-with-RAG", "obsidian"]
 }
 
 variable "github_repo_owner" {
@@ -49,3 +61,4 @@ variable "aws_environment" {
   type        = string
   default     = "DEV"
 }
+
