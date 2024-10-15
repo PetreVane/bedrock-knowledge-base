@@ -2,7 +2,6 @@
 variable "region" {
   description = "AWS region"
   type        = string
-  default     = "us-east-1"
 }
 
 variable "pinecone_api_key" {
@@ -13,13 +12,11 @@ variable "pinecone_api_key" {
 variable "pinecone_environment" {
   description = "Pinecone Environment"
   type        = string
-  default     = "us-east-1"
 }
 
 variable "default_email_address" {
   description = "Default email address where sns messages are sent"
   type        = string
-  default     = "petre.vane@gmail.com"
 }
 
 variable "frontend_github_repo" {
