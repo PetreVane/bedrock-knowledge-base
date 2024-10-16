@@ -21,7 +21,7 @@ resource "aws_bedrockagent_knowledge_base" "knowledge_base_with_pinecone" {
   depends_on = [null_resource.wait_for_iam_policy]
   
   # Set the name of the knowledge base, appending a random hex ID for uniqueness
-  name = "${var.knowledge_base_name}" // "-${random_id.generator.hex}" - temporarily commented out to allow pinecone index restore from backup; restoring from backup fails because of the uniqueness of the  index name
+  name = "${var.knowledge_base_name}-${random_id.generator.hex}" //- temporarily commented out to allow pinecone index restore from backup; restoring from backup fails because of the uniqueness of the  index name
   
   # Provide a description for the knowledge base
   description = var.knowledge_base_description
