@@ -1,10 +1,5 @@
 
 
-variable "request_processor_arn" {
-  description = "The ARN of the lambda function triggered by api gateway"
-  type = string
-}
-
 variable "deployment_env" {
   description = "The environment in which the infrastructure is deployed"
   default = "DEV"

@@ -40,10 +40,6 @@ variable "pinecone_connection_string" {
   description = "The connection string to the Pinecone API."
 }
 
-variable "pinecone_index_name" {
-  type        = string
-}
-
 variable "embedings_model" {
   description = "The name of the embeddings model to use."
   type = string

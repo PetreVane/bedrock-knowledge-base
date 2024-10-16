@@ -23,7 +23,6 @@ provider "pinecone" {
 module "s3" {
   source                            = "./s3"
   lambda_arn                        = module.lambda.document_ingestion_executor_arn
-  lambda_permission_allow_execution = module.lambda.lambda_s3_allow_execution_id
   lambda_zip_file_path              = module.lambda.document_ingestion_zip_output_path
   lambda_zip_name                   = module.lambda.document_ingestion_zip_id
 }
@@ -44,7 +43,7 @@ module "iam" {
   region               = var.region
   kb_source_bucket_arn = module.s3.kb_bucket_arn
   pinecone_secret_arn  = module.secrets_manager.pinecone_secret_arn
-  embedings_model_arn  = module.bedrock.embeddings_model_arn
+  embeddings_model_arn  = module.bedrock.embeddings_model_arn
   knowledge_base_arn   = module.bedrock.knowledge_base_arn
   sns_topic_arn        = module.sns.sns_topic_arn
 }

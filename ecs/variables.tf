@@ -42,31 +42,6 @@ variable "ecr_repository_name" {
   type = string
 }
 
-variable "bedrock_user_credentials_arn" {
-  description = "Bedrock user credentials from Secret Manager"
-  type = string
-}
-
-variable "anthropic_api_key_arn" {
-  description = "Anthropic API Key used by container"
-  type = string
-}
-
-variable "image_tag" {
-  description = "The tag attached to the image when it is pushed to ECR repository"
-  type = string
-}
-
-variable "bedrock_user_access_key_id" {
-  description = "Access key id for bedrock user"
-  type = string
-}
-
-variable "bedrock_user_access_key_secret" {
-  description = "Access key secret for bedrock user"
-  type = string
-}
-
 variable "bedrock_user" {
   description = "The user for which have credentials have been generated. These are used by the web app to interact with the AWS account"
   type = string

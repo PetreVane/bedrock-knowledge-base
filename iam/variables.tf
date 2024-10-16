@@ -21,7 +21,7 @@ variable "pinecone_secret_arn" {
   type = string
 }
 
-variable "embedings_model_arn" {
+variable "embeddings_model_arn" {
   description = "The ARN of the model to use for creating embeddings"
   type = string
 }

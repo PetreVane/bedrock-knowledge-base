@@ -49,7 +49,7 @@ data "aws_iam_policy_document" "bedrock_kb_policy" {
 	]
 	effect   = "Allow"
     resources = [
-      var.embedings_model_arn,
+      var.embeddings_model_arn,
 	  "arn:aws:bedrock:${var.region}:${data.aws_caller_identity.current.account_id}:knowledge-base/*"
     ]
   }

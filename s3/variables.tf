@@ -15,11 +15,6 @@ variable "lambda_zip_file_path" {
   type = string
 }
 
-variable "lambda_permission_allow_execution" {
-  type = string
-  description = "The permission which allows lambda invocations from s3 bucket"
-}
-
 variable "lambda_arn" {
   type        = string
   description = "The arn of the lambda function triggered by document upload"

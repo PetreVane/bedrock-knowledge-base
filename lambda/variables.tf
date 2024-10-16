@@ -26,11 +26,6 @@ variable "s3_bucket_id" {
   description = "The bucket id where the lambda code is stored"
 }
 
-variable "s3_bucket_key" {
-  description = "The object key pointing for the lambda zip file in s3"
-  type = string
-}
-
 variable "tf_lambda_executor_role" {
   type = string
   description = "The role ARN used to execute the lambda function"
