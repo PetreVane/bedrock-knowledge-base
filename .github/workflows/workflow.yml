@@ -43,6 +43,8 @@ jobs:
             --exclude "*" \
             --include "*.tf" \
             --include ".py" \
+            --include ".md" \
+            --include ".png" \
             --delete; then
             echo "Successfully uploaded Code files to S3"
           else
