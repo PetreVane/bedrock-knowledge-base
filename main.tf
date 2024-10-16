@@ -21,10 +21,10 @@ provider "pinecone" {
 }
 
 module "s3" {
-  source                            = "./s3"
-  lambda_arn                        = module.lambda.document_ingestion_executor_arn
-  lambda_zip_file_path              = module.lambda.document_ingestion_zip_output_path
-  lambda_zip_name                   = module.lambda.document_ingestion_zip_id
+  source               = "./s3"
+  lambda_arn           = module.lambda.document_ingestion_executor_arn
+  lambda_zip_file_path = module.lambda.document_ingestion_zip_output_path
+  lambda_zip_name      = module.lambda.document_ingestion_zip_id
 }
 
 module "secrets_manager" {
@@ -43,7 +43,7 @@ module "iam" {
   region               = var.region
   kb_source_bucket_arn = module.s3.kb_bucket_arn
   pinecone_secret_arn  = module.secrets_manager.pinecone_secret_arn
-  embeddings_model_arn  = module.bedrock.embeddings_model_arn
+  embeddings_model_arn = module.bedrock.embeddings_model_arn
   knowledge_base_arn   = module.bedrock.knowledge_base_arn
   sns_topic_arn        = module.sns.sns_topic_arn
 }
@@ -59,7 +59,6 @@ module "bedrock" {
   knowledge_base_role_arn        = module.iam.bedrock_kb_role_arn
   pinecone_connection_string     = module.pinecone.pinecone_host
   pinecone_credential_secret_arn = module.secrets_manager.pinecone_secret_arn
-  pinecone_index_name            = module.pinecone.pincone_index_name
   source_bucket_arn              = module.s3.kb_bucket_arn
   source_bucket_prefix           = module.s3.knowledge_files_folder_key
   iam_policy_attachment_id       = module.iam.iam_policy_attachment_id
@@ -73,7 +72,6 @@ module "lambda" {
   s3_bucket_arn            = module.s3.kb_bucket_arn
   s3_bucket_id             = module.s3.kb_bucket_id
   tf_lambda_executor_role  = module.iam.lambda_document_ingestion_arn
-  s3_bucket_key            = module.s3.lambda_object_key
   lambda_results_sns_topic = module.sns.sns_topic_arn
 
   api_gateway_execution_arn = module.api_gateway.api_gateway_execution_arn
@@ -119,24 +117,18 @@ module "ssm_parameter_store" {
 }
 
 module "ecs" {
-  source                         = "./ecs"
-  availability_zone              = ["${var.region}a", "${var.region}b", "${var.region}c"]
-  aws_region                     = var.region
-  bedrock_kb_arn                 = module.bedrock.knowledge_base_arn
-  cidr_block                     = "10.0.0.0/16"
-  ecr_repository_arn             = module.ssm_parameter_store.ecr_repository_arn
-  ecr_repository_name            = module.ssm_parameter_store.ecr_repository_name
-  subnet_cidr_block              = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  bedrock_user_credentials_arn   = module.secrets_manager.bedrock_user_credentials_arn
-  image_tag                      = var.aws_environment
-  anthropic_api_key_arn          = module.secrets_manager.anthropic_api_key_arn
-  bedrock_user_access_key_id     = module.ssm_parameter_store.bedrock_user_access_key_id
-  bedrock_user_access_key_secret = module.ssm_parameter_store.bedrock_user_access_key_secret
-  bedrock_user                   = module.bedrock.bedrock_user_arn
+  source              = "./ecs"
+  availability_zone   = ["${var.region}a", "${var.region}b", "${var.region}c"]
+  aws_region          = var.region
+  bedrock_kb_arn      = module.bedrock.knowledge_base_arn
+  cidr_block          = "10.0.0.0/16"
+  ecr_repository_arn  = module.ssm_parameter_store.ecr_repository_arn
+  ecr_repository_name = module.ssm_parameter_store.ecr_repository_name
+  subnet_cidr_block   = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  bedrock_user        = module.bedrock.bedrock_user_arn
 }
 
 module "api_gateway" {
   source                       = "./api_gateway"
-  request_processor_arn        = module.lambda.request_processor_arn
   request_processor_invoke_arn = module.lambda.request_processor_invoke_arn
 }

@@ -21,7 +21,7 @@ resource "aws_bedrockagent_knowledge_base" "knowledge_base_with_pinecone" {
   depends_on = [null_resource.wait_for_iam_policy]
   
   # Set the name of the knowledge base, appending a random hex ID for uniqueness
-  name = "${var.knowledge_base_name}-${random_id.generator.hex}"
+  name = "${var.knowledge_base_name}" // "-${random_id.generator.hex}" - temporarily commented out to allow pinecone index restore from backup; restoring from backup fails because of the uniqueness of the  index name
   
   # Provide a description for the knowledge base
   description = var.knowledge_base_description
@@ -97,22 +97,13 @@ resource "aws_bedrockagent_data_source" "kb_data_source" {
       hierarchical_chunking_configuration {
         overlap_tokens = 200
         level_configuration {
-          max_tokens = 1500
+          max_tokens = 1600
         }
         level_configuration {
-          max_tokens = 750
+          max_tokens = 800
         }
       }
     }
-
-    # chunking_configuration {
-    #   chunking_strategy = "SEMANTIC"
-    #   semantic_chunking_configuration {
-    #     max_token         = 512
-    #     buffer_size = 1
-    #     breakpoint_percentile_threshold = 95
-    #   }
-    # }
   }
 
 }
