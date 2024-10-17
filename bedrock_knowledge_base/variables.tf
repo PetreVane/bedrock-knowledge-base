@@ -40,10 +40,9 @@ variable "pinecone_connection_string" {
   description = "The connection string to the Pinecone API."
 }
 
-variable "embedings_model" {
+variable "embeddings_model" {
   description = "The name of the embeddings model to use."
   type = string
-  default = "amazon.titan-embed-text-v2:0"
 }
 
 variable "pinecone_credential_secret_arn" {

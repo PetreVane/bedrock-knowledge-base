@@ -47,3 +47,8 @@ variable "aws_environment" {
   default     = "DEV"
 }
 
+variable "embeddings_model" {
+  description = "The name of the embeddings model to use."
+  type = string
+  default = "amazon.titan-embed-text-v2:0"
+}

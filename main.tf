@@ -55,7 +55,7 @@ module "pinecone" {
 
 module "bedrock" {
   source = "./bedrock_knowledge_base"
-
+  embeddings_model               = var.embeddings_model
   knowledge_base_role_arn        = module.iam.bedrock_kb_role_arn
   pinecone_connection_string     = module.pinecone.pinecone_host
   pinecone_credential_secret_arn = module.secrets_manager.pinecone_secret_arn

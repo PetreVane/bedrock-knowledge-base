@@ -37,7 +37,7 @@ resource "aws_bedrockagent_knowledge_base" "knowledge_base_with_pinecone" {
     # Define the vector knowledge base configuration
     vector_knowledge_base_configuration {
       # Specify the ARN of the embedding model using the current partition and region
-      embedding_model_arn = "arn:${data.aws_partition.current.partition}:bedrock:${data.aws_region.current.name}::foundation-model/${var.embedings_model}"
+      embedding_model_arn = "arn:${data.aws_partition.current.partition}:bedrock:${data.aws_region.current.name}::foundation-model/${var.embeddings_model}"
     }
 
   }
@@ -95,7 +95,7 @@ resource "aws_bedrockagent_data_source" "kb_data_source" {
     chunking_configuration {
       chunking_strategy = "HIERARCHICAL"
       hierarchical_chunking_configuration {
-        overlap_tokens = 200
+        overlap_tokens = 160
         level_configuration {
           max_tokens = 1600
         }
