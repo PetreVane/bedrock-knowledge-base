@@ -79,7 +79,7 @@ Key variables to configure in your `terraform.tfvars`:
 After deployment, you can:
 - Upload documents to the created S3 bucket
 - Use the API Gateway to query the knowledge base
-- [Use the web application](https://github.com/PetreVane/Claude-Knowledge-Base-Agent-with-RAG) deployed as ECS container for interacting with the knowledge base:  **UNDER DEVELOPMENT** 
+- [Use the web application](https://github.com/PetreVane/Claude-Knowledge-Base-Agent-with-RAG) deployed as ECS container for interacting with the knowledge base
 - Check SNS topics for important notifications
 
 ## Security
