@@ -1,14 +1,12 @@
 
-# Bedrock Knowledge Base Project
+# Personal Bedrock Knowledge Base 
 
 ## Overview
 
-The Bedrock Knowledge Base project is a comprehensive Terraform-based solution for setting up and managing an AWS Bedrock agent knowledge base. This project integrates various AWS services and external tools to create a powerful, scalable, and efficient knowledge management system.
+This Personal Bedrock Knowledge Base project is a comprehensive Terraform-based solution for setting up and managing an AWS Bedrock agent knowledge base. This project integrates various AWS services and external tools to create a powerful, scalable, and efficient knowledge management system.
 
-## DALL-e Generated Diagram
-<img src=".images/img-hcQJK0uZuXazl8Gqj5Jsh5Yr.png" alt="Alt text" width="800" height="700">
-
-
+## Architecture Diagram
+<img src=".images/Bedrock_diagram.drawio.png" alt="Alt text" width="800" height="1024">
 
 ## Features
 

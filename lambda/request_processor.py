@@ -68,7 +68,7 @@ def get_bedrock_client() -> boto3.client:
         logger.error(f"Failed to create Bedrock client: {str(e)}")
         raise
 
-async def retrieve_context(client: boto3.client, query: str, knowledge_base_id: str, n: int = 8
+async def retrieve_context(client: boto3.client, query: str, knowledge_base_id: str, n: int = 15
 ) -> RetrievalResult:
     """
     Retrieves context from the knowledge base using the provided query.

@@ -26,7 +26,7 @@ resource "aws_ssm_parameter" "ecr_registry_id" {
 resource "aws_ssm_parameter" "ecr_repository_name" {
   name = "/github-actions/ecr_repository_name"
   type = "String"
-  value = var.ecr_repository_name`
+  value = var.ecr_repository_name
   tags = merge(var.tags, { Name = "terraform_project" })
 }
 

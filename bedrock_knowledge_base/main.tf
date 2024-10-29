@@ -95,12 +95,12 @@ resource "aws_bedrockagent_data_source" "kb_data_source" {
     chunking_configuration {
       chunking_strategy = "HIERARCHICAL"
       hierarchical_chunking_configuration {
-        overlap_tokens = 160
+        overlap_tokens = 60
         level_configuration {
-          max_tokens = 1600
+          max_tokens = 1500
         }
         level_configuration {
-          max_tokens = 800
+          max_tokens = 300
         }
       }
     }
