@@ -18,7 +18,7 @@ resource "aws_cloudwatch_event_rule" "ecr_image_push" {
 
 resource "aws_cloudwatch_event_target" "update_ecs_task" {
   rule      = aws_cloudwatch_event_rule.ecr_image_push.name
-  target_id = "UpdateECSService"
+  target_id = "UpdateECSTask"
   arn       = aws_ecs_cluster.main_cluster.arn
   role_arn  = aws_iam_role.eventbridge_ecs_role.arn
 
